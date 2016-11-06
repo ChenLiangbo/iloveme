@@ -1,0 +1,2 @@
+model_checkpoint_path: "modelSaver/MyNeurolNetworkModel.ckpt"
+all_model_checkpoint_paths: "modelSaver/MyNeurolNetworkModel.ckpt"

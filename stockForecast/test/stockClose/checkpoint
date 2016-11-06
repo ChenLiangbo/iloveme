@@ -1,0 +1,2 @@
+model_checkpoint_path: "/home/chenliangbo/stock_forecasting/chenlb/test/stockClose/MyNeurolNetworkModel.ckpt"
+all_model_checkpoint_paths: "/home/chenliangbo/stock_forecasting/chenlb/test/stockClose/MyNeurolNetworkModel.ckpt"

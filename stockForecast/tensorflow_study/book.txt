@@ -1,0 +1,13 @@
+-------------------
+address for studying
+-----------------------
+
+1,deep learning blogs
+http://blog.csdn.net/zouxy09/article/details/8781543
+
+-----------------
+
+2 ,cnn
+http://blog.csdn.net/celerychen2009/article/details/8973218
+
+-------------------

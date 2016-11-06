@@ -1,0 +1,2 @@
+model_checkpoint_path: "/home/chenliangbo/myStockWork/data2/modelSaver/MyNeurolNetworkModel.ckpt"
+all_model_checkpoint_paths: "/home/chenliangbo/myStockWork/data2/modelSaver/MyNeurolNetworkModel.ckpt"
