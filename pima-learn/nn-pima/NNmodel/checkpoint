@@ -1,0 +1,2 @@
+model_checkpoint_path: "/var/data/home/chenlb/nn-pima/NNmodel/MyNeurolNetworkModel.ckpt"
+all_model_checkpoint_paths: "/var/data/home/chenlb/nn-pima/NNmodel/MyNeurolNetworkModel.ckpt"
