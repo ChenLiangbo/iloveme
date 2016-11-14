@@ -17,18 +17,19 @@ class MyRecognizer(object):
         self.picedir = os.path.join(os.path.dirname(__file__),'pice/')
         self.tesseractConfig = os.path.join(os.path.dirname(__file__),'t_config')
 
-        self.iterTimes  = 0
-        self.maxIters   = 200
-        self.yMinOffset = 480
-        self.isExcel    = False
-        self.isTable345 = False        
+        self.iterTimes    = 0
+        self.maxIters     = 200
+        self.yMinOffset   = 480
+        self.isExcel      = False
+        self.isA4         = False    
+        self.rotateNeeded = False    
 
-        self.tableSettings12  = {"minHigh":50,"maxHigh":200,"minArea":1200,"yRows":15,
+        self.tableSettingsA3  = {"minHigh":50,"maxHigh":200,"minArea":1200,"yRows":15,
                                  "myWeight":3000,"maxWeight":300,"offset":20,"yMinOffset":480}
-        self.tableSettings345 = {"minHigh":50,"maxHigh":140,"minArea":1200,"yRows":16,
+        self.tableSettingsA4 = {"minHigh":50,"maxHigh":140,"minArea":1200,"yRows":16,
                                  "myWeight":1500,"maxWeight":200,"offset":10,"yMinOffset":150}
         self.domain = {"1":"浦东新区","2":"徐汇区","3":"长宁区","4":"普陀区","5":"虹口区","6":"杨浦区","7":"黄浦区","8":"静安区",
-                       "9":"宝山区","10":"闵行区","11":"嘉定区","12":"金山区","13":"松江区","14":"青浦区", "15":"奉贤区","16":"崇明县"}
+                       "9":"宝山区","10":"闵行区","11":"嘉定区","12":"金山区","13":"松江区","14":"青浦区", "15":"奉贤区","16":"崇明县","17":"unkown"}
         
         if not os.path.exists(self.path):
             os.mkdir(self.path)
@@ -43,11 +44,19 @@ class MyRecognizer(object):
     
 
     def reset(self,):
-        if self.isTable345:
-            self.isTable34 = False
-        if self.iterTimes > 0:
-            self.iterTimes = 0
+        if self.isA4:
+            self.isA4 = False
+        self.iterTimes = 0
       
+
+    def recognize(self,imageName,y_min_offset = 480):
+        try:
+            return self.tableRecognizer(imageName,y_min_offset = y_min_offset)
+        except:
+            piceList = os.listdir(self.picedir)
+            for p in piceList:
+                os.remove(self.picedir + p)
+
 
     def tableRecognizer(self,imageName,y_min_offset = 480):
         if not os.path.isfile(imageName):
@@ -57,21 +66,22 @@ class MyRecognizer(object):
         if self.iterTimes > self.maxIters:
             self.reset()
             raise ValueError,'This image cannot be recognized'
-
+        # print "tableRecognizer y_min_offset = %d " %(y_min_offset,)
         image = cv2.imread(imageName)
 
-        if self.isTable345:
-            tableSettings = self.tableSettings345
+        if self.isA4:
+            tableSettings = self.tableSettingsA4
             gray = cv2.cvtColor(image,cv2.COLOR_BGR2GRAY)
             gray = self.rotate90DegreesToRight(gray)
-            # gray = self.rotate90DegreesToRight(gray)
-            # gray = self.rotate90DegreesToRight(gray)
+            if self.rotateNeeded:
+                gray = self.rotate90DegreesToRight(gray)  #顺时针旋转九十度
+                gray = self.rotate90DegreesToRight(gray)
             cv2.imwrite(self.path +'gray.jpg',gray)
             image = cv2.imread(self.path + 'gray.jpg')
             gray = cv2.cvtColor(image,cv2.COLOR_BGR2GRAY)
             os.remove(self.path + 'gray.jpg')
         else:
-            tableSettings = self.tableSettings12
+            tableSettings = self.tableSettingsA3
             gray = cv2.cvtColor(image,cv2.COLOR_BGR2GRAY)
 
         myGray = gray.copy()
@@ -117,7 +127,7 @@ class MyRecognizer(object):
         for [x,y,w,h] in contoursAreaList:
             if x > x_min and x < x_max:
                 if y > y_min+y_min_offset and y < y_max:
-                    if h<tableSettings["maxHigh"] and h>tableSettings["minHigh"] and w<self.tableSettings12["maxWeight"]:
+                    if h<tableSettings["maxHigh"] and h>tableSettings["minHigh"] and w<tableSettings["maxWeight"]:
                         myContours.append([x,y,w,h])
         #print "myContours = ",len(myContours)
         wList = []
@@ -280,6 +290,13 @@ class MyRecognizer(object):
         myData = []
         for key in data:
             myData.append(data[key])
+
+        length = len(myData)
+        for xi in range(0,length-1):
+            for xj in range(xi,length):
+                if int(myData[xi]['x1']) > int(myData[xj]['x1']):
+                    myData[xi],myData[xj] = myData[xj],myData[xi]
+
         retDict["data"] = myData
         return retDict
 
