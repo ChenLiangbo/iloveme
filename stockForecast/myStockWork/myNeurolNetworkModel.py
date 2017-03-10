@@ -36,18 +36,16 @@ class MyNeurolNetworkModel(object):
        
 
     def normalize(self,x_train,y_train):
-    	xmax = np.amax(x_train, axis=0)
+        xmax = np.amax(x_train, axis=0)
         xmin = np.amin(x_train, axis=0)
         x_train = (x_train - xmin) / (xmax - xmin)
         self.x_train = x_train
         parameterX = {"xmax":xmax,"xmin":xmin,"x_train":x_train}
-    
         ymax = np.amax(y_train, axis=0)
         ymin = np.amin(y_train, axis=0)
         y_train = (y_train - ymin) / (ymax - ymin)
         self.y_train = y_train
         parameterY = {"ymin":ymin,"ymax":ymax,"y_train":y_train}
-
         parameter = {"parameterX":parameterX,"parameterY":parameterY}
         f = open(self.parameterPath,'wb')
         pickle.dump(parameter,f)
@@ -68,15 +66,14 @@ class MyNeurolNetworkModel(object):
     def denormalize_ypredict(self,y_predict):
         f = open(self.parameterPath,'rb')
         parameter = pickle.load(f)
-
-    	ymin = parameter['parameterY']['ymin']
-    	ymax = parameter['parameterY']["ymax"]
-    	y_predict = y_predict*(ymax - ymin) + ymin
+        ymin = parameter['parameterY']['ymin']
+        ymax = parameter['parameterY']["ymax"]
+        y_predict = y_predict*(ymax - ymin) + ymin
         return y_predict
 
 
     def init_weight(self,shape,name = None):
-    	init = tf.random_normal(shape, stddev = 0.1)
+        init = tf.random_normal(shape, stddev = 0.1)
         return tf.Variable(init,name = name)
 
     def init_bias(self,shape,name = None):
@@ -90,7 +87,7 @@ class MyNeurolNetworkModel(object):
 
     def random_vector(self,length,limit):
         vector = []
-        for i in xrange(length):
+        for i in range(length):
             vector.append(np.random.randint(limit))
         return np.asarray(vector)
 
@@ -120,7 +117,8 @@ class MyNeurolNetworkModel(object):
         pridict_op = tf.nn.relu(tf.matmul(L3, W3) + B3)
 
         sess = tf.Session()
-        init = tf.initialize_all_variables()
+        # init = tf.initialize_all_variables()
+        init = tf.global_variables_initializer()
         sess.run(init)
 
         sess.run(train_op, feed_dict={X: x_train, Y: y_train,})
@@ -137,19 +135,19 @@ class MyNeurolNetworkModel(object):
             # y_batch = y_train[vector]
             try:
                 sess.run(train_op, feed_dict={X:x_train, Y:y_train})
-            except Exception,ex:
-                print "[WARMING]exception happens when run train model",str(ex)
+            except Exception(ex):
+                print("[WARMING]exception happens when run train model",str(ex))
                 continue
             y_pridict = sess.run(pridict_op,feed_dict = {X:x_train})
             erro_pridict = y_train - y_pridict
             error = np.abs(erro_pridict).mean()
 
             if run_times % 300 == 0:
-                print "run_times = %d error = %f " % (run_times,error)
+                print("run_times = %d error = %f " % (run_times,error))
             if run_times > self.trainTimes:
                 break
             run_times = run_times + 1
-        print "I have trianed %d times !!!!" % (run_times)
+        print("I have trianed %d times !!!!" % (run_times),)
 
         saver = tf.train.Saver()
         saver.save(sess,self.savePath)
@@ -179,10 +177,12 @@ class MyNeurolNetworkModel(object):
         pridict_op = tf.nn.relu(tf.matmul(L3, W3) + B3)
 
         sess = tf.Session()
-        init = tf.initialize_all_variables()
+        # init = tf.initialize_all_variables()   # python 2.7 ubuntu
+        init = tf.global_variables_initializer() # python 3.5 windows
         sess.run(init)
 
-        saver = tf.train.Saver(tf.all_variables())
+        # saver = tf.train.Saver(tf.all_variables()) # python 2.7 ubuntu
+        saver = tf.train.Saver(tf.global_variables())
         saver.restore(sess,self.savePath)
 
         y_predict = sess.run(pridict_op, feed_dict={X:x_test})
@@ -194,7 +194,7 @@ class MyNeurolNetworkModel(object):
         shape = x_train.shape
         kdj = np.zeros((shape[0],3))
         Kn_1,Dn_1 = 50,50
-        for i in xrange(self.kdjPeriod,shape[0]):
+        for i in range(self.kdjPeriod,shape[0]):
             rsv = 100*(x_train[i,3]-min(x_train[i-self.kdjPeriod:i,2]))/(max(x_train[i-self.kdjPeriod:i,1]) - min(x_train[i-self.kdjPeriod:i,2]))
             Kn = 2*Kn_1/3 + rsv/3
             Dn = 2*Dn_1/3 + Kn/3
@@ -214,21 +214,21 @@ class MyNeurolNetworkModel(object):
     def calculate_dclose(self,closeArray):
         shape = closeArray.shape
         dclose = np.zeros((shape[0],1))
-        for i in xrange(1,shape[0]):
+        for i in range(1,shape[0]):
             dclose[i] = closeArray[i,0] - closeArray[i-1,0]
         dmax = np.max(dclose[1:,0])
         dmin = np.max(dclose[1:,0])
         dclose[0,0] = (dmax-dmin)*np.random.random(1) + dmin
         eclose = np.exp(dclose)
         d2close = np.zeros((shape[0],1))
-        for i in xrange(1,shape[0]):
+        for i in range(1,shape[0]):
             d2close[i,0] = dclose[i,0] - dclose[i-1,0]
         d2max = np.max(d2close[1:,:])
         d2min = np.min(d2close[1:,:])
         d2close[0,0] = (d2max - d2min)*np.random.random(1) + d2min
         e2close = np.exp(d2close)
         declose =  np.hstack([dclose,eclose,d2close,e2close])
-        for j in xrange(declose.shape[1]):
+        for j in range(declose.shape[1]):
             declose[:,j] = declose[:,j]/np.mean(declose[:,j])
         return declose
 
@@ -237,7 +237,7 @@ class MyNeurolNetworkModel(object):
     def calculate_logfit(self,closeArray):
         shape = closeArray.shape
         logFitrate = np.zeros(shape)
-        for i in xrange(1,shape[0]):
+        for i in range(1,shape[0]):
             logFitrate[i,0] = np.log(closeArray[i,0]/closeArray[i-1,0])
         logFitrate[0,0] = logFitrate[1,0]
         return logFitrate - np.mean(logFitrate)
@@ -248,12 +248,12 @@ class MyNeurolNetworkModel(object):
         shape = array.shape
         outArray = np.zeros(shape)
         if len(shape) < 2:
-            for i in xrange(shape[0]):
+            for i in range(shape[0]):
                 outArray[i] = array[shape[0]-1-i]
             return outArray
     
-        for i in xrange(shape[0]):
-            for j in xrange(shape[1]):
+        for i in range(shape[0]):
+            for j in range(shape[1]):
                 outArray[i,j] = array[shape[0]-1-i,j]
         return outArray
 
@@ -264,12 +264,12 @@ class MyNeurolNetworkModel(object):
         x = range(0,length)
         x = np.array(x).reshape(length,1)
         y = np.zeros(x.shape)
-        for i in xrange(x.shape[0]):
+        for i in range(x.shape[0]):
             y[i,0] = np.power(exponent,x[i,0])
         # y = y/np.sum(y)
 
         retExponent = np.zeros((shape[0],1))
-        for i in xrange(shape[0]):
+        for i in range(shape[0]):
             if i < length:
                 related = closeArray[0:i+1,:]
                 related = self.reverse_array(related)
@@ -301,29 +301,29 @@ if __name__ == '__main__':
     Open,High,Low,Close,Volume = np.hsplit(yahooData,5)
 
     shape = yahooData.shape
-    print "shape = ",shape
-    print "-"*80
+    print("shape = ",shape)
+    print("-"*80)
     
-    print "Close shape = ",Close.shape
+    print("Close shape = ",Close.shape)
     
     myNNmodel = MyNeurolNetworkModel()
     kdj = myNNmodel.calculate_kdj(yahooData)    #(None,3)
-    print "kdj = ",kdj.shape
+    print("kdj = ",kdj.shape)
     
     declose = myNNmodel.calculate_dclose(Close)  #(None,4)
-    print "declose = ",declose.shape
+    print("declose = ",declose.shape)
 
     logfit = myNNmodel.calculate_logfit(Close)   #(None,1)
-    print "logfit = ",logfit.shape
+    print("logfit = ",logfit.shape)
     
     closeExponent = myNNmodel.calculate_exponent(Close,exponent = 0.87) #(None,1)
-    print "closeExponent = ",closeExponent.shape
+    print("closeExponent = ",closeExponent.shape)
 
 
     from sklearn.decomposition import PCA
     pca = PCA(n_components = 2)
     newData = pca.fit_transform(np.hstack([Open,High,Low,Volume]))  #(None,2)
-    print "newData = ",newData.shape
+    print("newData = ",newData.shape)
     
     x_sample = np.hstack([newData,declose,kdj,logfit,closeExponent])
     y_sample = Close[1:]
@@ -331,7 +331,7 @@ if __name__ == '__main__':
     x_train = np.vstack([x_sample[0:100,:],x_sample[300:500,:],x_sample[700:900,:],x_sample[1100:1150,:]])
     y_train = np.vstack([y_sample[0:100,:],y_sample[300:500,:],y_sample[700:900,:],y_sample[1100:1150,:]])
 
-    print "x_train.shape = ",x_train.shape
+    print("x_train.shape = ",x_train.shape)
     sample_number = x_train.shape[0]
     
     test_start = 1150
@@ -350,7 +350,7 @@ if __name__ == '__main__':
     
     myNNmodel.train(x_train,y_train)
 
-    print "myNNmodel train successfully ..."
+    print("myNNmodel train successfully ...")
     
     y_test_predict = myNNmodel.predict(x_test)
     from matplotlib import pyplot as plt
@@ -378,4 +378,4 @@ if __name__ == '__main__':
     plt.grid(True)
     plt.savefig(outdir + 'acurracy')
     plt.show()
-    print "mean acuracy = ",np.mean(np.abs(acuracy))    
+    print("mean acuracy = ",np.mean(np.abs(acuracy)))

@@ -8,29 +8,29 @@ yahooData = np.load('yahoo_finance5.npy')
 Open,High,Low,Close,Volume = np.hsplit(yahooData,5)
 
 shape = yahooData.shape
-print "shape = ",shape
-print "-"*80
+print("shape = ",shape)
+print("-"*80)
 
-print "Close shape = ",Close.shape
+print("Close shape = ",Close.shape)
 
 myNNmodel = MyNeurolNetworkModel()
 kdj = myNNmodel.calculate_kdj(yahooData)    #(None,3)
-print "kdj = ",kdj.shape
+print("kdj = ",kdj.shape)
 
 declose = myNNmodel.calculate_dclose(Close)  #(None,4)
-print "declose = ",declose.shape
+print("declose = ",declose.shape)
 
 logfit = myNNmodel.calculate_logfit(Close)   #(None,1)
-print "logfit = ",logfit.shape
+print("logfit = ",logfit.shape)
 
 closeExponent = myNNmodel.calculate_exponent(Close,exponent = 0.9) #(None,1)
-print "closeExponent = ",closeExponent.shape
+print("closeExponent = ",closeExponent.shape)
 
 
 from sklearn.decomposition import PCA
 pca = PCA(n_components = 2)
 newData = pca.fit_transform(np.hstack([Open,High,Low,Volume]))  #(None,2)
-print "newData = ",newData.shape
+print("newData = ",newData.shape)
 
 x_sample = np.hstack([newData,declose,kdj,logfit,closeExponent])
 y_sample = Close[1:]
@@ -38,7 +38,7 @@ y_sample = Close[1:]
 x_train = np.vstack([x_sample[0:100,:],x_sample[300:500,:],x_sample[700:900,:],x_sample[1100:1150,:]])
 y_train = np.vstack([y_sample[0:100,:],y_sample[300:500,:],y_sample[700:900,:],y_sample[1100:1150,:]])
 
-print "x_train.shape = ",x_train.shape
+print("x_train.shape = ",x_train.shape)
 sample_number = x_train.shape[0]
 
 test_start = 1150
@@ -50,10 +50,10 @@ from sklearn.linear_model import LinearRegression,LogisticRegression
 # model = LogisticRegression()
 model = LinearRegression()
 model.fit(x_train, y_train)
-print "myNNmodel train successfully ..."
+print("myNNmodel train successfully ...")
 y_test_predict = model.predict(x_test)
 
-print "y_test_predict = ",y_test_predict.shape
+print("y_test_predict = ",y_test_predict.shape)
 
 outdir = './images/'
 from matplotlib import pyplot as plt

@@ -1,2 +1,2 @@
-model_checkpoint_path: "/home/chenliangbo/myStockWork/withKDJdclose/MyNeurolNetworkModel.ckpt"
-all_model_checkpoint_paths: "/home/chenliangbo/myStockWork/withKDJdclose/MyNeurolNetworkModel.ckpt"
+model_checkpoint_path: "E:\\workspace\\githubObject\\iloveme\\stockForecast\\myStockWork\\withKDJdclose/MyNeurolNetworkModel.ckpt"
+all_model_checkpoint_paths: "E:\\workspace\\githubObject\\iloveme\\stockForecast\\myStockWork\\withKDJdclose/MyNeurolNetworkModel.ckpt"
