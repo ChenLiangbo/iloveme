@@ -1,0 +1,21 @@
+
+[mySpider]
+
+ ---- created by chenlb
+ ---- finished at 2017-3-14 (ホワイトデー)
+
+[platform] 
+ ---- scrapy
+ ---- python 2.7
+ ---- beautifulsoup4
+ ---- ubuntu
+
+[function]
+
+   What I want this program to do is that to get welther information from a 
+
+   websit whoes address is :http://lishi.tianqi.com/
+
+   To make it,you should just excute python run.py,wait for some munitues.
+
+   Test finished on server 40 without any problem.
